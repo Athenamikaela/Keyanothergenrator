@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExampleHub Key Generator</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        #keyDisplay {
+            font-size: 18px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            width: 80%;
+            color: #fff;
+            border: none;
+            text-align: center;
+            display: none;
+        }
+        #expiration {
+            font-size: 14px;
+            color: #bbb;
+            margin-bottom: 20px;
+            display: none;
+        }
+        button {
+            background-color: #ff5555;
+            border: none;
+            padding: 10px 20px;
+            color: #fff;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #ff7777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ExampleHub Key Generator</h1>
+        <input id="keyDisplay" readonly />
+        <div id="expiration"></div>
+        <button onclick="getKey()">Get Key</button>
+    </div>
+
+    <script>
+        function makeid(length) {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const charactersLength = characters.length;
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        }
+
+        const keyStorage = "exampleHubKey";
+        const keyDisplay = document.getElementById("keyDisplay");
+        const expirationDisplay = document.getElementById("expiration");
+
+        function generateAndStoreKey() {
+            const newKey = makeid(10);
+            const expireDate = new Date();
+            expireDate.setHours(expireDate.getHours() + 24);
+            localStorage.setItem(keyStorage, JSON.stringify({
+                key: newKey,
+                expire: expireDate.getTime()
+            }));
+            return { key: newKey, expire: expireDate };
+        }
+
+        function checkAndUpdateKey() {
+            const storedData = localStorage.getItem(keyStorage);
+            const currentDate = new Date();
+
+            if (!storedData) {
+                return null;
+            } else {
+                const data = JSON.parse(storedData);
+                const expireDate = new Date(data.expire);
+
+                if (currentDate >= expireDate) {
+                    return null;
+                } else {
+                    return { key: data.key, expire: expireDate };
+                }
+            }
+        }
+
+        function copyKey() {
+            const keyText = keyDisplay.value;
+            navigator.clipboard.writeText(keyText).then(() => {
+                alert("Key copied to clipboard!");
+            }).catch(err => {
+                alert("Failed to copy key. Please select and copy manually (Ctrl+C).");
+                console.error("Failed to copy: ", err);
+            });
+        }
+
+        function getKey() {
+            let keyData = checkAndUpdateKey();
+
+            if (!keyData) {
+                const { key, expire } = generateAndStoreKey();
+                keyDisplay.value = key;
+                expirationDisplay.textContent = `Expires: ${expire.toLocaleString()}`;
+                keyDisplay.style.display = "block";
+                expirationDisplay.style.display = "block";
+                copyKey();
+            } else {
+                keyDisplay.value = keyData.key;
+                expirationDisplay.textContent = `Expires: ${keyData.expire.toLocaleString()}`;
+                keyDisplay.style.display = "block";
+                expirationDisplay.style.display = "block";
+                copyKey();
+            }
+        }
+
+        // Initial check
+        const initialKeyData = checkAndUpdateKey();
+        if (initialKeyData) {
+            keyDisplay.value = initialKeyData.key;
+            expirationDisplay.textContent = `Expires: ${initialKeyData.expire.toLocaleString()}`;
+            keyDisplay.style.display = "block";
+            expirationDisplay.style.display = "block";
+        }
+    </script>
+</body>
+</html>
