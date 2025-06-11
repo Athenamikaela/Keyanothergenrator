@@ -317,7 +317,7 @@
                 
                 <div class="video-container">
                     <div class="timer-display" id="timer-display2">45</div>
-                    <iframe id="youtube-video2" src="https://www.youtube.com/embed/Zk1z9qCyVR8?enablejsapi=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe id="youtube-video2" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     <div class="blood-progress" id="blood-progress2"></div>
                 </div>
                 
@@ -352,7 +352,7 @@
                 
                 <div class="video-container">
                     <div class="timer-display" id="timer-display">45</div>
-                    <iframe id="youtube-video" src="https://www.youtube.com/embed/juow3sqqBjw?enablejsapi=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe id="youtube-video" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     <div class="blood-progress" id="blood-progress"></div>
                 </div>
                 
@@ -399,7 +399,6 @@
         </div>
     </div>
 
-    <!-- Notification -->
     <div class="notification" id="notification">
         Not complete! Please watch the entire video.
     </div>
@@ -441,7 +440,9 @@
             let youtubePlayer = null;
             let youtubePlayer2 = null;
 
-            // Check if key exists in localStorage for returning users
+            console.log('Script loaded');
+
+            // Check stored key
             const storedKey = localStorage.getItem('robloxKey');
             const storedExpiry = localStorage.getItem('keyExpiry');
             if (storedKey && storedExpiry) {
@@ -460,6 +461,7 @@
                 }
             } else {
                 completeBtn1.addEventListener('click', function() {
+                    console.log('Checkpoint 1 clicked');
                     checkpointScreen1.classList.remove('active');
                     videoScreen.classList.add('active');
                     videoScreen.classList.add('fade-in');
@@ -467,13 +469,17 @@
                 });
 
                 watchButton.addEventListener('click', function() {
+                    console.log('Watch Button 1 clicked');
                     if (!isWatchingVideo && !videoCompleted && youtubePlayer) {
                         startVideoTimer();
                         youtubePlayer.playVideo();
+                    } else {
+                        console.log('Video not ready or already completed');
                     }
                 });
 
                 unlockButton.addEventListener('click', function() {
+                    console.log('Unlock Button 1 clicked');
                     if (videoCompleted) {
                         videoScreen.classList.remove('active');
                         checkpointScreen2.classList.add('active');
@@ -485,22 +491,25 @@
                 });
 
                 watchButton2.addEventListener('click', function() {
+                    console.log('Watch Button 2 clicked');
                     if (!isWatchingVideo2 && !videoCompleted2 && youtubePlayer2) {
                         startVideoTimer2();
                         youtubePlayer2.playVideo();
+                    } else {
+                        console.log('Video 2 not ready or already completed');
                     }
                 });
 
                 unlockButton2.addEventListener('click', function() {
+                    console.log('Unlock Button 2 clicked');
                     if (videoCompleted2) {
                         checkpointScreen2.classList.remove('active');
                         keyScreen.classList.add('active');
                         keyScreen.classList.add('fade-in');
-                        
                         const generatedKey = generateKey();
                         keyText.textContent = generatedKey;
                         const now = new Date();
-                        const expiryDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24-hour expiration
+                        const expiryDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
                         localStorage.setItem('robloxKey', generatedKey);
                         localStorage.setItem('keyExpiry', expiryDate.getTime());
                         startExpiryCountdown(expiryDate);
@@ -511,13 +520,14 @@
             }
 
             copyButton.addEventListener('click', function() {
+                console.log('Copy Button clicked');
                 const keyValue = keyText.textContent;
                 navigator.clipboard.writeText(keyValue).then(function() {
                     copyButton.textContent = 'Copied!';
                     setTimeout(function() {
                         copyButton.textContent = 'Copy Key';
                     }, 2000);
-                });
+                }).catch(err => console.error('Clipboard failed:', err));
             });
 
             function startVideoTimer() {
@@ -526,29 +536,23 @@
                 updateTimerDisplay();
                 bloodProgress.style.transition = 'transform 45s linear';
                 bloodProgress.style.transform = 'scaleX(1)';
-                
-                if (watchTimer) {
-                    clearInterval(watchTimer);
-                }
-                
+                if (watchTimer) clearInterval(watchTimer);
                 watchTimer = setInterval(function() {
                     if (!documentHidden && youtubePlayer && youtubePlayer.getPlayerState() === YT.PlayerState.PLAYING) {
                         watchTimeRemaining--;
                         updateTimerDisplay();
-                        if (watchTimeRemaining <= 0) {
-                            completeVideoWatch();
-                        }
+                        if (watchTimeRemaining <= 0) completeVideoWatch();
                     } else if (!documentHidden && youtubePlayer) {
                         showNotification();
                     }
                 }, 1000);
             }
-            
+
             function updateTimerDisplay() {
                 timerDisplay.textContent = watchTimeRemaining;
                 watchCounter.textContent = watchTimeRemaining;
             }
-            
+
             function completeVideoWatch() {
                 clearInterval(watchTimer);
                 isWatchingVideo = false;
@@ -568,29 +572,23 @@
                 updateTimerDisplay2();
                 bloodProgress2.style.transition = 'transform 45s linear';
                 bloodProgress2.style.transform = 'scaleX(1)';
-                
-                if (watchTimer2) {
-                    clearInterval(watchTimer2);
-                }
-                
+                if (watchTimer2) clearInterval(watchTimer2);
                 watchTimer2 = setInterval(function() {
                     if (!documentHidden && youtubePlayer2 && youtubePlayer2.getPlayerState() === YT.PlayerState.PLAYING) {
                         watchTimeRemaining2--;
                         updateTimerDisplay2();
-                        if (watchTimeRemaining2 <= 0) {
-                            completeVideoWatch2();
-                        }
+                        if (watchTimeRemaining2 <= 0) completeVideoWatch2();
                     } else if (!documentHidden && youtubePlayer2) {
                         showNotification();
                     }
                 }, 1000);
             }
-            
+
             function updateTimerDisplay2() {
                 timerDisplay2.textContent = watchTimeRemaining2;
                 watchCounter2.textContent = watchTimeRemaining2;
             }
-            
+
             function completeVideoWatch2() {
                 clearInterval(watchTimer2);
                 isWatchingVideo2 = false;
@@ -603,14 +601,14 @@
                 watchButton2.querySelector('.counter').textContent = '✓';
                 unlockButton2.classList.add('active');
             }
-            
+
             function showNotification() {
                 notification.classList.add('show');
                 setTimeout(function() {
                     notification.classList.remove('show');
                 }, 3000);
             }
-            
+
             document.addEventListener('visibilitychange', function() {
                 documentHidden = document.hidden;
                 if (documentHidden && (isWatchingVideo || isWatchingVideo2)) {
@@ -621,54 +619,64 @@
             });
 
             function loadYouTubeAPI() {
+                console.log('Loading YouTube API');
                 const tag = document.createElement('script');
                 tag.src = "https://www.youtube.com/iframe_api";
+                tag.onerror = function() {
+                    console.error('Failed to load YouTube API');
+                };
                 const firstScriptTag = document.getElementsByTagName('script')[0];
                 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-                
                 window.onYouTubeIframeAPIReady = function() {
-                    youtubePlayer = new YT.Player('youtube-video', {
-                        events: {
-                            'onReady': function() { console.log('Player 1 ready'); },
-                            'onStateChange': onPlayerStateChange
-                        }
-                    });
+                    console.log('YouTube API Ready');
+                    initializeYouTubePlayers();
                 };
-                
-                function onPlayerStateChange(event) {
-                    if (event.data === YT.PlayerState.PAUSED && isWatchingVideo) {
-                        showNotification();
-                    }
-                }
             }
 
             function loadYouTubeAPI2() {
+                console.log('Loading YouTube API 2');
                 if (window.YT) {
-                    youtubePlayer2 = new YT.Player('youtube-video2', {
-                        events: {
-                            'onReady': function() { console.log('Player 2 ready'); },
-                            'onStateChange': onPlayerStateChange2
-                        }
-                    });
+                    initializeYouTubePlayers();
                 } else {
                     const tag = document.createElement('script');
                     tag.src = "https://www.youtube.com/iframe_api";
+                    tag.onerror = function() {
+                        console.error('Failed to load YouTube API 2');
+                    };
                     const firstScriptTag = document.getElementsByTagName('script')[0];
                     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
                     window.onYouTubeIframeAPIReady = function() {
-                        youtubePlayer2 = new YT.Player('youtube-video2', {
-                            events: {
-                                'onReady': function() { console.log('Player 2 ready'); },
-                                'onStateChange': onPlayerStateChange2
-                            }
-                        });
+                        console.log('YouTube API Ready 2');
+                        initializeYouTubePlayers();
                     };
                 }
-                
-                function onPlayerStateChange2(event) {
-                    if (event.data === YT.PlayerState.PAUSED && isWatchingVideo2) {
-                        showNotification();
+            }
+
+            function initializeYouTubePlayers() {
+                console.log('Initializing YouTube Players');
+                youtubePlayer = new YT.Player('youtube-video', {
+                    events: {
+                        'onReady': function() { console.log('Player 1 ready'); },
+                        'onStateChange': onPlayerStateChange
                     }
+                });
+                youtubePlayer2 = new YT.Player('youtube-video2', {
+                    events: {
+                        'onReady': function() { console.log('Player 2 ready'); },
+                        'onStateChange': onPlayerStateChange2
+                    }
+                });
+            }
+
+            function onPlayerStateChange(event) {
+                if (event.data === YT.PlayerState.PAUSED && isWatchingVideo) {
+                    showNotification();
+                }
+            }
+
+            function onPlayerStateChange2(event) {
+                if (event.data === YT.PlayerState.PAUSED && isWatchingVideo2) {
+                    showNotification();
                 }
             }
 
@@ -696,11 +704,11 @@
             }
 
             function generateKey() {
-                const secretWord = "RobloxKey" + Date.now() + Math.random().toString(36).substr(2, 5); // Unique seed
+                const dailySeed = Math.floor(Date.now() / (24 * 60 * 60 * 1000)); // Daily reset
+                const secretWord = "LennyOnTop" + dailySeed.toString(36);
                 const hash = simpleHash(secretWord);
-                const timestamp = Math.floor(Date.now() / 1000).toString(16).padStart(8, '0'); // 8-char hex
-                const randomPart = generateRandomString(8 - timestamp.length);
-                return timestamp + randomPart + hash;
+                const timestamp = Math.floor(Date.now() / 1000).toString(16).padStart(8, '0');
+                return timestamp + hash; // 12 characters: 8-hex timestamp + 4-char hash
             }
 
             function startExpiryCountdown(expiryDate) {
